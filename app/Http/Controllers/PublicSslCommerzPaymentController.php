@@ -16,7 +16,7 @@ class PublicSslCommerzPaymentController extends Controller
     public function index(Request $request) 
     {
 
-            # Here you have to receive all the order data to initate   payment.
+            # Here you have to receive all the order data to initate  payment.
             # Lets your oder trnsaction informations are saving in a table called "orders"
             # In orders table order uniq identity is "order_id","order_status" field contain status of the transaction, "grand_total" is the order amount to be paid and "currency" is for storing Site Currency which will be checked with paid currency.
 
@@ -38,39 +38,10 @@ class PublicSslCommerzPaymentController extends Controller
             $_SESSION['payment_values']['tran_id']=$post_data['tran_id'];
             #End to save these value  in session to pick in success page.
 
-
             $server_name=$request->root()."/";
             $post_data['success_url'] = $server_name . "success";
             $post_data['fail_url'] = $server_name . "fail";
             $post_data['cancel_url'] = $server_name . "cancel";
-
-            # CUSTOMER INFORMATION
-            $post_data['cus_name'] = 'Customer Name';
-            $post_data['cus_email'] = 'customer@mail.com';
-            $post_data['cus_add1'] = 'Customer Address';
-            $post_data['cus_add2'] = "";
-            $post_data['cus_city'] = "";
-            $post_data['cus_state'] = "";
-            $post_data['cus_postcode'] = "";
-            $post_data['cus_country'] = "Bangladesh";
-            $post_data['cus_phone'] = '8801XXXXXXXXX';
-            $post_data['cus_fax'] = "";
-
-            # SHIPMENT INFORMATION
-            $post_data['ship_name'] = 'ship_name';
-            $post_data['ship_add1 '] = 'Ship_add1';
-            $post_data['ship_add2'] = "";
-            $post_data['ship_city'] = "";
-            $post_data['ship_state'] = "";
-            $post_data['ship_postcode'] = "";
-            $post_data['ship_country'] = "Bangladesh";
-
-            # OPTIONAL PARAMETERS
-            $post_data['value_a'] = "ref001";
-            $post_data['value_b'] = "ref002";
-            $post_data['value_c'] = "ref003";
-            $post_data['value_d'] = "ref004";
-
 
             
             #Before  going to initiate the payment order status need to update as Pending.
@@ -91,7 +62,14 @@ class PublicSslCommerzPaymentController extends Controller
 
     public function success(Request $request) 
     {
-        //echo "Transaction is Successful";
+        $check = json_encode($_POST);
+       dd($_POST);
+        echo "Transaction is Successful";
+
+        $data = [
+            'order_status'=>'completed',
+
+        ];
 
         $sslc = new SSLCommerz();
         #Start to received these value from session. which was saved in index function.
@@ -115,7 +93,7 @@ class PublicSslCommerzPaymentController extends Controller
                 */ 
                 $update_product = DB::table('orders')
                             ->where('order_id', $tran_id)
-                            ->update(['order_status' => 'Processing']);
+                            ->update(['order_status' => 'Complete']);
 
                 echo "<br >Transaction is successfully Complete";
             }
@@ -156,6 +134,7 @@ class PublicSslCommerzPaymentController extends Controller
 
         if($order_detials->order_status=='Pending')
         {
+            dd($_POST);
             $update_product = DB::table('orders')
                             ->where('order_id', $tran_id)
                             ->update(['order_status' => 'Failed']);
@@ -224,7 +203,7 @@ class PublicSslCommerzPaymentController extends Controller
                         */
                         $update_product = DB::table('orders')
                                     ->where('order_id', $tran_id)
-                                    ->update(['order_status' => 'Processing']);
+                                    ->update(['order_status' => 'Complete']);
 
                         echo "Transaction is successfully Complete";
                     }
